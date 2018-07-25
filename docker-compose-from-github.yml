@@ -6,4 +6,21 @@ services:
     image: mnagaku/lc-minimal-notebook
     ports:
       - "8888:8888"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     command: bash -c "git clone --depth 1 https://github.com/mnagaku/openforum2018.git ; set +u ; . /usr/local/bin/start.sh jupyter notebook --NotebookApp.token=''"
+
+  jenkins:
+    image: jenkins
+    ports:
+      - "8080:8080"
+
+  drupal:
+    image: drupal
+    ports:
+      - "80:80"
+
+  mario:
+    image: pengbai/docker-supermario
+    ports:
+      - "8600:8080"
