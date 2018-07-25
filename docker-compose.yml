@@ -8,10 +8,10 @@ jupyter:
     - .:/home/jovyan/openforum2018
     - /var/run/docker.sock:/var/run/docker.sock
 
-jenkins:
-  image: jenkins
+3dwebmap:
+  image: tumgis/3dcitydb-web-map
   ports:
-    - "8080:8080"
+    - "8000:8000"
 
 drupal:
   image: drupal

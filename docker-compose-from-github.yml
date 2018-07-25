@@ -10,10 +10,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     command: bash -c "git clone --depth 1 https://github.com/mnagaku/openforum2018.git ; set +u ; . /usr/local/bin/start.sh jupyter notebook --NotebookApp.token=''"
 
-  jenkins:
-    image: jenkins
+  3dwebmap:
+    image: tumgis/3dcitydb-web-map
     ports:
-      - "8080:8080"
+      - "8000:8000"
 
   drupal:
     image: drupal
