@@ -6,3 +6,20 @@ jupyter:
   command: bash -c "set +u ; . /usr/local/bin/start.sh jupyter notebook --NotebookApp.token=''"
   volumes:
     - .:/home/jovyan/openforum2018
+    - /var/run/docker.sock:/var/run/docker.sock
+
+jenkins:
+  image: jenkins
+  ports:
+    - "8080:8080"
+
+drupal:
+  image: drupal
+  ports:
+    - "80:80"
+
+boinc:
+  image: j0nnylester/boinc
+  environment:
+    - PROJECTURL=http://boinc.bakerlab.org/rosetta/
+    - ACCOUNTKEY=2005176_81e52362158f314bb416f6ef9ab3cd19"
