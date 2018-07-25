@@ -22,4 +22,4 @@ boinc:
   image: j0nnylester/boinc
   environment:
     - PROJECTURL=http://boinc.bakerlab.org/rosetta/
-    - ACCOUNTKEY=2005176_81e52362158f314bb416f6ef9ab3cd19"
+    - ACCOUNTKEY=2005176_81e52362158f314bb416f6ef9ab3cd19
