@@ -13,10 +13,10 @@ jupyter:
   ports:
     - "8000:8000"
 
-drupal:
-  image: drupal
+wiki:
+  image: realms/realms-wiki
   ports:
-    - "80:80"
+    - "5000:5000"
 
 boinc:
   image: kyontan/boinc-runner
