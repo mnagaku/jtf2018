@@ -1,37 +1,202 @@
-# openforum2018
+# JTF2018
 
-NIIオープンフォーラム/オープンハウス2018のハンズオン/デモ用
+JTF2018デモ用
 
-<a href="http://play-with-docker.com?stack=https://raw.githubusercontent.com/mnagaku/openforum2018/master/docker-compose-from-github.yml"><img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" /></a>
+<a href="http://play-with-docker.com?stack=https://raw.githubusercontent.com/mnagaku/jtf2018/master/docker-compose-from-github.yml"><img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" /></a>
 
-## ストーリー
+※　上の「Try in PWD」を　[ctrl]+クリック　すると、クラウド上にデモ環境が準備されるので、ブラウザだけで試すことができます。ローカルのdocker環境で試す場合は、　git clone　してから　$Env:COMPOSE_CONVERT_WINDOWS_PATHS=1　して　docker-compose up -d　します
 
-### 2018/05/31
+----
 
-M先輩から「このサーバがちょっと怪しいくって調査したいから、インシデントレスポンス第3版のp179に載ってるサーバの調査コマンド一式の結果のレポート作って。あ、あと、ポートが1つ LISTEN になってて http サーバになってるはずなんで、それが動いてるかも確認しといて。」と指示があった。
+## 作業環境の準備
 
-<font color="Red">
-・Notebookをターミナル代わりに使う。紆余曲折があっても全部残す。メモの類はmdセルに書く
-</font>
+Ansibleで操作対象となるサーバがdockerコンテナなので、Jupyterから使えるdockerコマンドをインストールし、操作対象となるコンテナをインベントリファイルに登録します
 
-### 2018/06/04
+[00_作業環境の準備](00_作業環境の準備.ipynb)
 
-M先輩から前回同様の指示があった。前回作業を踏まえて今回も作業するが、今後も同様の作業がありそうなので、リファクタリングしておく。
+----
 
-M先輩から「サービス止めないでファイルシステム舐めたりしてるので、作業が与えるサーバの負荷は気になる」とコメントがあったので、適時ロードアベレージを取っておくことにする。
+## デモシナリオ（ターミナルでの作業）
 
-<font color="Red">
-・直近の類似の作業を行ったNotebookを複製して、作業日時を接頭辞に付し、Notebookベースの作業を行う作業後に残ったNotebookがそのまま証跡となる<p />
-・紆余曲折で冗⾧なNotebookは、適当なタイミングで清書する<p />
-・再利用性が高く、実行結果が安定している場合、実行結果をお手本に残す<p />
-・前提条件を満たしていないと失敗する確認用のセル（Design By Contract）<p />
-</font>
+### 2018-07-25_3dwebmapの調査
 
-### 今日
+M先輩から「3dwebmapのサーバ、中で何動いてるかレポート作って」と指示があった
 
-後輩のXに前回作業のnbのコピーを渡して、作業を依頼する。Notebookの内容だけで分からなくて追加でググったことがあったら、追記しておくように指示した。
+1. ターミナルのログを残す設定にする
+2. sudo docker exec -it jtf2018_3dwebmap_1 bash （sshの代わり）
+3. 「linux os 確認」でググる、/etc/issueを見つける
+4. cat /etc/issue （OSがdebian8と確認）
+5. 「debian サービス 一覧」でググる、insservを見つける
+6. insserv -s （サービス一覧を表示、それっぽいサービスは見つからず）
+7. ps aux （プロセスを確認、node.jsが動いてるのを見つける）
+8. 「listen debian」でググる、ssコマンドを見つける
+9. ss -lnat ; ss -lnau （8000番が開いてるのを確認する）
+10. ブラウザで8000番を確認するとwebアプリが動いてるのが分かる
 
-<font color="Red">
-・Notebookの複製を渡して作業依頼。スキルトランスファーとして機能<p />
-・Notebookの複製で作業する時、「説明が足りていない」「例外的な振る舞いに遭遇した」「システムの振る舞いが変わっていた」場合、追記・修正して、次に備える<p />
-</font>
+----
+
+## デモシナリオ（LC4RI）
+
+### 2018-07-25_3dwebmapの調査
+
+M先輩から「3dwebmapのサーバ、中で何動いてるかレポート作って」と指示があった
+
+Python3(LC_wrapper)の新しいノートブックを作り、ファイル名などを付ける
+
+ログ保存を有効化
+```
+%env lc_wrapper_force=on
+```
+
+#### 調査対象の確認
+
+ansibleのインベントリファイルで対象サーバを確認し、簡単なコマンドが通ることを確認しておく
+
+```
+hosts = !cat ./hosts
+hosts
+```
+
+```
+for h in hosts:
+        if h.find('3dwebmap') > -1:
+            target = ' -i ./hosts {} -c docker'.format(h)
+target
+```
+
+```
+!sudo ansible -a "ls -la" {target}
+```
+
+#### 調査対象から情報を収集
+
+##### OSのバージョン
+
+「linux os 確認」でググって見つけた、/etc/issueを確認する方法を使う
+
+https://eng-entrance.com/linux-os-version
+
+```
+command = "'cat /etc/issue'"
+!sudo ansible -a {command} {target}
+```
+
+##### サービス
+
+「debian サービス 一覧」でググって見つけた、insservを使う
+
+https://www.mk-mode.com/octopress/2015/06/03/debian-8-service-management/
+
+```
+command = "'insserv -s'"
+!sudo ansible -a {command} {target}
+```
+
+webサーバなどの、それっぽいサービスは見つからず
+
+##### プロセス
+
+psコマンド、これは覚えてる
+
+```
+command = "'ps aux'"
+!sudo ansible -a {command} {target}
+```
+
+node.jsが動いてる
+
+##### LISTENポート
+
+「listen debian」でググって見つけた、ssを使う
+
+http://mzgkworks.com/post/linux-port-confirm/
+
+```
+command = "'ss -lnat'"
+!sudo ansible -a {command} {target}
+```
+
+```
+command = "'ss -lnau'"
+!sudo ansible -a {command} {target}
+```
+
+8000番ポートでLISTENしてる
+
+#### サービスの確認
+
+8000番ポートにブラウザでアクセスしてみる
+
+画面キャプチャを貼る
+
+地図が見れるwebアプリだった
+
+#### まとめ
+
+node.jsで8000番ポートからサービスされてる、地図が見れるwebアプリが動いている
+
+### 2018-07-26_wikiの調査
+
+M先輩から「wikiのサーバ、中で何動いてるかレポート作って」と指示があった
+
+「2018-07-25_3dwebmapの調査」とほぼ同じ作業が予想されたので、後輩に任せることにした
+
+ノートブックをコピーして、ファイル名などを整えて、適時書き換えながら作業を行うこととする
+
+##### サービス
+
+流していくと、insservが使えないとこで詰まる
+
+「ubuntu サービス 確認」でググって、何種類か載ってるのを見つけたので、順に試す
+
+https://server-setting.info/debian/debian-like-chkconfig.html
+
+```
+command = "'sysv-rc-conf --list'"
+!sudo ansible -a {command} {target}
+```
+
+```
+command = "'rcconf --list'"
+!sudo ansible -a {command} {target}
+```
+
+```
+command = "'ls /etc/rc1.d/'"
+!sudo ansible -a {command} {target}
+command = "'ls /etc/rc2.d/'"
+!sudo ansible -a {command} {target}
+command = "'ls /etc/rc3.d/'"
+!sudo ansible -a {command} {target}
+command = "'ls /etc/rc4.d/'"
+!sudo ansible -a {command} {target}
+command = "'ls /etc/rc5.d/'"
+!sudo ansible -a {command} {target}
+```
+
+webサーバなどの、それっぽいサービスは見つからず
+
+##### プロセス
+
+/home/wiki/realms-wiki 以下にある実行ファイルが、pythonで動いてる雰囲気
+
+##### LISTENポート
+
+5000番ポートでLISTENしてる
+
+#### サービスの確認
+
+5000番ポートにブラウザでアクセスしてみる
+
+画面キャプチャを貼る
+
+「realms-wiki」でググってみたところ
+
+https://github.com/scragg0x/realms-wiki
+
+wikiのようだ
+
+#### まとめ
+
+5000番ポートからサービスされてるpython製のwiki「realms」が動いている
+

@@ -5,7 +5,7 @@ jupyter:
     - "8888:8888"
   command: bash -c "set +u ; . /usr/local/bin/start.sh jupyter notebook --NotebookApp.token=''"
   volumes:
-    - .:/home/jovyan/openforum2018
+    - .:/home/jovyan/jtf2018
     - /var/run/docker.sock:/var/run/docker.sock
 
 3dwebmap:
