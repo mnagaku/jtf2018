@@ -20,8 +20,8 @@ services:
     ports:
       - "5000:5000"
 
-  boinc:
-    image: kyontan/boinc-runner
-    environment:
-      - PROJECT_URL=http://boinc.bakerlab.org/rosetta/
-      - PROJECT_KEY=2005176_81e52362158f314bb416f6ef9ab3cd19
+#  boinc:
+#    image: kyontan/boinc-runner
+#    environment:
+#      - PROJECT_URL=http://boinc.bakerlab.org/rosetta/
+#      - PROJECT_KEY=2005176_81e52362158f314bb416f6ef9ab3cd19
